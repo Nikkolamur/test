@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sound test v5</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #faf8f5; font-family: 'DM Sans', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 100vh; gap: 20px; padding: 24px;
+  }
+  .label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #b0a898; }
+  .kana { font-family: 'Noto Sans JP', sans-serif; font-size: 96px; font-weight: 300; color: #1c1917; line-height: 1; }
+  .romaji { font-size: 13px; font-weight: 600; color: #e8401c; letter-spacing: 0.2em; }
+  .btn {
+    padding: 14px 32px; border-radius: 12px; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    background: #e8401c; color: #fff; box-shadow: 0 4px 12px rgba(232,64,28,0.25);
+    transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.96); }
+  .status { font-size: 12px; color: #b0a898; text-align: center; max-width: 280px; line-height: 1.6; }
+  .voice-name { font-size: 11px; color: #c8c0b8; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="label">Tap to hear</div>
+<div class="kana">あ</div>
+<div class="romaji">A</div>
+
+<button class="btn" onclick="playSound()">🔊 Play sound</button>
+<div class="status" id="status">—</div>
+<div class="voice-name" id="voicename"></div>
+
+<script>
+function speak() {
+  const voices = speechSynthesis.getVoices();
+  const jaVoice = voices.find(v => v.lang.startsWith('ja')) || null;
+
+  const utter = new SpeechSynthesisUtterance('あ');
+  utter.lang = 'ja-JP';
+  utter.rate = 0.85;
+  if (jaVoice) {
+    utter.voice = jaVoice;
+    document.getElementById('voicename').textContent = `Voice: ${jaVoice.name}`;
+  } else {
+    document.getElementById('voicename').textContent = 'No Japanese voice found — using default';
+  }
+  utter.onstart  = () => document.getElementById('status').textContent = '🔊 Playing…';
+  utter.onend    = () => document.getElementById('status').textContent = '✓ Done';
+  utter.onerror  = (e) => document.getElementById('status').textContent = `✗ Error: ${e.error}`;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+}
+
+function playSound() {
+  if (!('speechSynthesis' in window)) {
+    document.getElementById('status').textContent = '✗ Speech API not available';
+    return;
+  }
+  document.getElementById('status').textContent = 'Loading…';
+  // Voices load async on some browsers
+  if (speechSynthesis.getVoices().length) {
+    speak();
+  } else {
+    speechSynthesis.onvoiceschanged = speak;
+  }
+}
+</script>
+</body>
+</html>
