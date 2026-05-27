@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sound test v4</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #faf8f5; font-family: 'DM Sans', sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 100vh; gap: 20px; padding: 24px;
+  }
+  .label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #b0a898; }
+  .kana { font-family: 'Noto Sans JP', sans-serif; font-size: 96px; font-weight: 300; color: #1c1917; line-height: 1; }
+  .romaji { font-size: 13px; font-weight: 600; color: #e8401c; letter-spacing: 0.2em; }
+  .btn {
+    padding: 14px 32px; border-radius: 12px; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    background: #e8401c; color: #fff; box-shadow: 0 4px 12px rgba(232,64,28,0.25);
+    transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.96); }
+  .status { font-size: 12px; color: #b0a898; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="label">Tap to hear</div>
+<div class="kana">あ</div>
+<div class="romaji">A</div>
+
+<button class="btn" onclick="playSound()">🔊 Play sound</button>
+<div class="status" id="status">—</div>
+
+<script>
+function playSound() {
+  const text = encodeURIComponent('あ');
+  const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${text}&tl=ja&client=tw-ob`;
+  const audio = new Audio(url);
+  document.getElementById('status').textContent = 'Loading…';
+  audio.onplay  = () => document.getElementById('status').textContent = '🔊 Playing…';
+  audio.onended = () => document.getElementById('status').textContent = '✓ Done';
+  audio.onerror = () => document.getElementById('status').textContent = '✗ Blocked — try the next option below';
+  audio.play().catch(e => document.getElementById('status').textContent = '✗ ' + e.message);
+}
+</script>
+</body>
+</html>
